@@ -1,25 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { Storage } from './_models/local_storage';
+import { HttpClient } from '@angular/common/http';
+import { User } from './_models/user';
 import { AccountService } from './_services/account.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'The Dating App';
+  title = 'The Dating app';
+  users: any;
 
   constructor(private accountService: AccountService) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setCurrentUser();
   }
 
   setCurrentUser() {
-    const user = JSON.parse(localStorage.getItem(Storage.APP_USER));
-    !!user
-      ? this.accountService.setCurrentUser(user)
-      : this.accountService.setCurrentUser(null);
+    const user: User = JSON.parse(localStorage.getItem('user'));
+    this.accountService.setCurrentUser(user);
   }
 }

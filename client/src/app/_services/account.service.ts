@@ -1,55 +1,48 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { Storage } from '../_models/local_storage';
-import { AppUser } from '../_models/user';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { User } from '../_models/user';
+import { ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-  private baseUrl = 'https://localhost:5000/api/';
-  private currentUser = new BehaviorSubject<AppUser>(null);
-  public currentUser$ = this.currentUser.asObservable();
+  baseUrl = 'https://localhost:5000/api/';
+  private currentUserSource = new ReplaySubject<User>(1);
+  currentUser$ = this.currentUserSource.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  register(model: any) {
-    return this.http
-      .post<AppUser>(this.baseUrl + 'account/register', model)
-      .pipe(
-        tap((user) => {
-          if (user) {
-            localStorage.setItem(Storage.APP_USER, JSON.stringify(user));
-            this.currentUser.next(user);
-          }
-        })
-      );
-  }
-
   login(model: any) {
     return this.http.post(this.baseUrl + 'account/login', model).pipe(
-      map((response: AppUser) => {
+      map((response: User) => {
         const user = response;
         if (user) {
-          localStorage.setItem('appUser', JSON.stringify(user));
-          this.currentUser.next(user);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSource.next(user);
         }
       })
     );
   }
 
-  setCurrentUser(user: AppUser) {
-    this.currentUser.next(user);
+  register(model: any) {
+    return this.http.post(this.baseUrl + 'account/register', model).pipe(
+      map((user: User) => {
+        if (user) {
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSource.next(user);
+        }
+      })
+    );
+  }
+
+  setCurrentUser(user: User) {
+    this.currentUserSource.next(user);
   }
 
   logout() {
-    this.currentUser.next(null);
-    localStorage.removeItem(Storage.APP_USER);
-  }
-
-  getUsers() {
-    return this.http.get<any[]>('https://localhost:5000/api/users');
+    localStorage.removeItem('user');
+    this.currentUserSource.next(null);
   }
 }
