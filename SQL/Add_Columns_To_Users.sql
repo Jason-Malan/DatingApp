@@ -1,0 +1,36 @@
+USE DatingDB
+GO
+
+ALTER TABLE [Users]
+ADD [DateOfBirth] DATETIME  
+GO
+
+ALTER TABLE [Users]
+ADD [KnownAs] VARCHAR(100)
+GO
+
+ALTER TABLE [Users]
+ADD [Created] DATETIME DEFAULT GETDATE()
+GO
+
+ALTER TABLE [Users]
+ADD [LastActive] DATETIME DEFAULT GETDATE()
+GO
+
+ALTER TABLE [Users]
+ADD [MainPhoto] INT,
+[Photos] VARCHAR(MAX)
+GO
+
+
+ALTER TABLE [Users]
+ADD [Gender] VARCHAR(7),
+[Introduction] VARCHAR(MAX),
+[LookingFor] VARCHAR(200),
+[Interests] VARCHAR(750),
+[City] VARCHAR(200),
+[Country] VARCHAR(200)
+GO
+
+SELECT * FROM [Users]
+GO

@@ -1,7 +1,0 @@
-ALTER TABLE [Users]
-ADD [PasswordHash] VARBINARY(MAX)
-GO
-
-ALTER TABLE [Users]
-ADD [PasswordSalt] VARBINARY(MAX)
-GO

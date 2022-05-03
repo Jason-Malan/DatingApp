@@ -1,25 +1,31 @@
 using API.Data;
+using API.DTOs;
 using API.Entities;
+using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
+    //[Authorize]
     public class UsersController : BaseAPIController
     {
         private readonly ILogger<UsersController> _logger;
-        private DataContext _dataContext;
+        private readonly IPlatformUserDataManager platformUserDataManager;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="context"></param>
-        public UsersController(ILogger<UsersController> logger, DataContext context)
+        public UsersController(ILogger<UsersController> logger, IPlatformUserDataManager platformUserDataManager, IMapper mapper)
         {
             _logger = logger;
-            _dataContext = context;
+            this.platformUserDataManager = platformUserDataManager;
+            this.mapper = mapper;
         }
 
         /// <summary>
@@ -27,21 +33,29 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<PlatformUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<FrontendUserDto>>> GetUsers()
         {
-            return await _dataContext.Users.ToListAsync();
+            var users = await platformUserDataManager.GetUsersAsync();
+
+            var usersToReturn = new List<FrontendUserDto>();
+
+            foreach (var user in users)
+            {
+                usersToReturn.Add(await platformUserDataManager.MapPlatformUserToFrontendUser(user));
+            }
+
+            return Ok(usersToReturn);
         }
 
         /// <summary>
         /// Returns a single user based on the user Id.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<PlatformUser>> GetUser(int id)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<FrontendUserDto>> GetUser(string username)
         {
-            return await _dataContext.Users.FindAsync(id);
+            var user = await platformUserDataManager.GetUserByUsernameAsync(username);
+            return mapper.Map<FrontendUserDto>(user);
         }
     }
 

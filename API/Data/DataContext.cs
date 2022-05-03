@@ -7,6 +7,7 @@ namespace API.Data
     {
         public DataContext(DbContextOptions options): base(options) {}
 
-        public DbSet<PlatformUser> Users { get; set; }
+        public DbSet<PlatformUser>? PlatformUsers { get; set; }
+        public DbSet<Photo>? Photos { get; set; }
     }
 }  
