@@ -15,6 +15,7 @@
     "lib": ["es2018", "ES2019", "dom"]
   },
   "angularCompilerOptions": {
+    "strictTemplates": true,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
   }

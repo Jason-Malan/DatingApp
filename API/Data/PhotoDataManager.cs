@@ -12,7 +12,7 @@ namespace API.Data
         {
             this.context = context;
         }
-        public async Task<IEnumerable<Photo>> GetPhotosAsync()
+        public async Task<List<Photo>> GetPhotosAsync()
         {
             var photos = await context.Photos!.ToListAsync();
             return photos;

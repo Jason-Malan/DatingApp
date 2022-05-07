@@ -37,12 +37,7 @@ namespace API.Controllers
         {
             var users = await platformUserDataManager.GetUsersAsync();
 
-            var usersToReturn = new List<FrontendUserDto>();
-
-            foreach (var user in users)
-            {
-                usersToReturn.Add(await platformUserDataManager.MapPlatformUserToFrontendUser(user));
-            }
+            var usersToReturn = await platformUserDataManager.MapPlatformUserListToFrontendUserList(users.ToList());
 
             return Ok(usersToReturn);
         }
@@ -54,8 +49,8 @@ namespace API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<FrontendUserDto>> GetUser(string username)
         {
-            var user = await platformUserDataManager.GetUserByUsernameAsync(username);
-            return mapper.Map<FrontendUserDto>(user);
+            var user = await platformUserDataManager.GetFrontendUserByUsernameAsync(username);
+            return Ok(user);   
         }
     }
 

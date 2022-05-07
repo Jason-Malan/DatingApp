@@ -44,6 +44,30 @@ namespace API.Data
             context.Entry(user).State = EntityState.Modified;
         }
 
+        public async Task<List<FrontendUserDto>> MapPlatformUserListToFrontendUserList(List<PlatformUser> users)
+        {
+            List<FrontendUserDto> platformUserDtos = new List<FrontendUserDto>();
+
+            List<Photo> photos = await photoDataManager.GetPhotosAsync();
+            List<PhotoDto> photoDtos = mapper.Map<List<PhotoDto>>(photos);
+
+            foreach (var user in users)
+            {
+                var userToAdd = mapper.Map<FrontendUserDto>(user);
+                userToAdd.Photos = photoDtos.FindAll(x => x.PlatformUserId == user.Id);
+                foreach (var photo in userToAdd.Photos)
+                {
+                    if (photo.IsMain.Value)
+                    {
+                        userToAdd.PhotoUrl = photo.Url;
+                    }
+                }
+                platformUserDtos.Add(userToAdd);
+            }
+
+            return platformUserDtos;
+        }
+
         public async Task<FrontendUserDto> MapPlatformUserToFrontendUser(PlatformUser user)
         {
             var photos = await photoDataManager.GetPhotosByUserId(user.Id.Value);
@@ -54,6 +78,13 @@ namespace API.Data
             var mainPhotoUrl = photos.Find(x => x.IsMain == true);
             userToReturn.PhotoUrl = mainPhotoUrl.Url;
 
+            return userToReturn;
+        }
+
+        public async Task<FrontendUserDto> GetFrontendUserByUsernameAsync(string username)
+        {
+            var user = context.PlatformUsers.ToList().Find(x => x.UserName == username);
+            var userToReturn = await MapPlatformUserToFrontendUser(user);
             return userToReturn;
         }
     }
