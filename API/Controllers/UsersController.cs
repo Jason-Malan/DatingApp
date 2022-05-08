@@ -6,13 +6,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
     //[Authorize]
     public class UsersController : BaseAPIController
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UsersController> logger;
         private readonly IPlatformUserDataManager platformUserDataManager;
         private readonly IMapper mapper;
 
@@ -23,7 +24,7 @@ namespace API.Controllers
         /// <param name="context"></param>
         public UsersController(ILogger<UsersController> logger, IPlatformUserDataManager platformUserDataManager, IMapper mapper)
         {
-            _logger = logger;
+            this.logger = logger;
             this.platformUserDataManager = platformUserDataManager;
             this.mapper = mapper;
         }
@@ -51,6 +52,20 @@ namespace API.Controllers
         {
             var user = await platformUserDataManager.GetFrontendUserByUsernameAsync(username);
             return Ok(user);   
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await platformUserDataManager.GetUserByUsernameAsync(username);
+
+            mapper.Map(memberUpdateDto, user);
+            platformUserDataManager.Update(user);
+
+            if (await platformUserDataManager.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Failed to update user");
         }
     }
 
