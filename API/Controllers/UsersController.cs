@@ -1,6 +1,7 @@
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -16,17 +17,25 @@ namespace API.Controllers
         private readonly ILogger<UsersController> logger;
         private readonly IPlatformUserDataManager platformUserDataManager;
         private readonly IMapper mapper;
+        private readonly IPhotoService photoService;
+        private readonly IPhotoDataManager photoDataManager;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="context"></param>
-        public UsersController(ILogger<UsersController> logger, IPlatformUserDataManager platformUserDataManager, IMapper mapper)
+        public UsersController(ILogger<UsersController> logger,
+                               IPlatformUserDataManager platformUserDataManager,
+                               IMapper mapper,
+                               IPhotoService photoService,
+                               IPhotoDataManager photoDataManager)
         {
             this.logger = logger;
             this.platformUserDataManager = platformUserDataManager;
             this.mapper = mapper;
+            this.photoService = photoService;
+            this.photoDataManager = photoDataManager;
         }
 
         /// <summary>
@@ -47,7 +56,7 @@ namespace API.Controllers
         /// Returns a single user based on the user Id.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{username}")]
+        [HttpGet("{username}", Name ="GetUser")]
         public async Task<ActionResult<FrontendUserDto>> GetUser(string username)
         {
             var user = await platformUserDataManager.GetFrontendUserByUsernameAsync(username);
@@ -57,8 +66,7 @@ namespace API.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await platformUserDataManager.GetUserByUsernameAsync(username);
+            var user = await platformUserDataManager.GetUserByUsernameAsync(User.GetUsername());
 
             mapper.Map(memberUpdateDto, user);
             platformUserDataManager.Update(user);
@@ -67,6 +75,35 @@ namespace API.Controllers
 
             return BadRequest("Failed to update user");
         }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
+        {
+            var user = User.GetUsername();
+
+            var result = await photoService.AddPhotoAsync(file);
+
+            if (result.Error != null) return BadRequest(result.Error.Message);
+
+            var photo = new Photo()
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+            };
+
+            var photoCount = await photoDataManager.CountAsync();
+
+            if (photoCount == 0)
+            {
+                photo.IsMain = true;
+            }
+
+            var photoDto = await photoDataManager.SavePhotoAsync(photo);
+
+            return CreatedAtRoute("GetUser", new { username = User.GetUsername() }, photoDto);
+
+            return BadRequest("Problem adding photo");
+        }   
     }
 
 }

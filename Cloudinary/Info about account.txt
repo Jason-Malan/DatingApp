@@ -1,0 +1,8 @@
+E-mail: jasondm1291@gmail.com
+Password: Qazxcvbn1*
+
+Assignable cloud name: dyqrbtny1
+
+Your cloud name is used to build the URL that your images will be publicly available from.
+For example: https://res.cloudinary.com/my_cloud_name/...
+You can keep the default value and modify your cloud name after sign up from the Settings page.
