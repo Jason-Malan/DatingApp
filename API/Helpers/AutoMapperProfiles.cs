@@ -13,6 +13,7 @@ namespace API.Helpers
             CreateMap<PlatformUser, FrontendUserDto>()
                 .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.Value.CalculateAge()));
             CreateMap<Photo, PhotoDto>();
+            CreateMap<PhotoDto, Photo>();
             CreateMap<MemberUpdateDto, PlatformUser>();
         }
     }

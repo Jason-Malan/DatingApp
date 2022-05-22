@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
+#nullable disable
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class UsersController : BaseAPIController
     {
         private readonly ILogger<UsersController> logger;
@@ -79,7 +80,7 @@ namespace API.Controllers
         [HttpPost("add-photo")]
         public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
         {
-            var user = User.GetUsername();
+            var user = await platformUserDataManager.GetUserByUsernameAsync(User.GetUsername());
 
             var result = await photoService.AddPhotoAsync(file);
 
@@ -89,21 +90,76 @@ namespace API.Controllers
             {
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId,
+                PlatformUserId = user.Id,
+                IsMain = 0,
             };
 
-            var photoCount = await photoDataManager.CountAsync();
+            var photoCount = await photoDataManager.GetPhotosByUserId(user.Id.Value);
 
-            if (photoCount == 0)
+            if (photoCount.Count == 0)
             {
-                photo.IsMain = true;
+                photo.IsMain = 1;
             }
 
             var photoDto = await photoDataManager.SavePhotoAsync(photo);
 
-            return CreatedAtRoute("GetUser", new { username = User.GetUsername() }, photoDto);
+            if (photoDto == null)
+            {
+                return BadRequest("Problem adding photo");
+            }
 
-            return BadRequest("Problem adding photo");
-        }   
+            return CreatedAtRoute("GetUser", new { username = User.GetUsername() }, photoDto);
+        }
+
+        [HttpPut("set-main-photo/{photoId}")]
+        public async Task<ActionResult> SetMainPhoto(int photoId)
+        {
+            var user = await platformUserDataManager.GetFrontendUserByUsernameAsync(User.GetUsername());
+
+            var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
+
+            if (photo.IsMain.Value) return BadRequest("This is already your main photo");
+
+            var currentMain = user.Photos.FirstOrDefault(x => x.IsMain.Value);
+            if (currentMain != null) currentMain.IsMain = false;
+            photo.IsMain = true;
+
+            var update1 = await photoDataManager.UpdatePhotoAsync(mapper.Map<Photo>(currentMain));
+            var update2 = await photoDataManager.UpdatePhotoAsync(mapper.Map<Photo>(photo));
+
+            return NoContent();
+        }
+
+        [HttpDelete("delete-photo/{photoId}")]
+        public async Task<ActionResult> DeletePhoto(int photoId)
+        {
+            var user = await platformUserDataManager.GetFrontendUserByUsernameAsync(User.GetUsername());
+
+            var photoDto = user.Photos.FirstOrDefault(x => x.Id == photoId);
+
+            if (photoDto == null) return NotFound();
+
+            if (photoDto.IsMain.Value) return BadRequest("You cannot delete your main photo");
+
+            var photo = await photoDataManager.GetPhotoByIdAsync(photoDto.Id.Value);
+
+            if (photo.PublicId != null)
+            {
+                var result = await photoService.DeletePhotoAsync(photo.PublicId);
+                if (result.Error != null) return BadRequest(result.Error.Message);
+            }
+
+            var result1 = await photoDataManager.RemovePhoto(photo);
+
+            if (result1 is OkResult okResult)
+            {
+                return Ok();
+            } else
+            {
+                return BadRequest();
+            }
+
+        }
     }
 
 }

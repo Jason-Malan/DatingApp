@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
+#nullable disable
+
 namespace API.Controllers
 {
     public class AccountController : BaseAPIController
@@ -37,7 +39,7 @@ namespace API.Controllers
             _context?.PlatformUsers?.Add(user);
             await _context.SaveChangesAsync();
 
-            return new PlatformUserDto { Username = user.UserName, Token = _tokenService.CreateToken(user)};
+            return new PlatformUserDto { Username = user.UserName, Token = _tokenService.CreateToken(user) };
         }
 
         [HttpPost("login")]
@@ -56,7 +58,14 @@ namespace API.Controllers
                 if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
             }
 
-            return new PlatformUserDto { Username = user.UserName, Token = _tokenService.CreateToken(user)};
+            var usersPhotos = (await _context.Photos.ToListAsync()).FindAll(x => x.PlatformUserId == user.Id);
+
+            return new PlatformUserDto 
+            {   
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user),
+                PhotoUrl = usersPhotos.FirstOrDefault(x => x.IsMain.Value == 1)?.Url
+            };
         }
 
         private async Task<bool> UserExists(string username)

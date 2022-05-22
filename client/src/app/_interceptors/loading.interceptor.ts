@@ -7,7 +7,7 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BusyService } from '../_services/busy.service';
-import { delay, finalize } from 'rxjs/operators';
+import { delay, finalize, tap } from 'rxjs/operators';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
@@ -24,5 +24,10 @@ export class LoadingInterceptor implements HttpInterceptor {
         this.busyService.idle();
       })
     );
+    // return next.handle(request).pipe(
+    //   tap((resp) => {
+    //     if (resp != null) this.busyService.idle();
+    //   })
+    // )
   }
 }

@@ -75,8 +75,8 @@ namespace API.Data
             FrontendUserDto userToReturn = mapper.Map<FrontendUserDto>(user);
             userToReturn.Photos = mapper.Map<IList<PhotoDto>>(photos);
 
-            var mainPhotoUrl = photos.Find(x => x.IsMain == true);
-            userToReturn.PhotoUrl = mainPhotoUrl.Url;
+            var mainPhotoUrl = photos.Find(x => x.IsMain == 1);
+            userToReturn.PhotoUrl = mainPhotoUrl?.Url;
 
             return userToReturn;
         }

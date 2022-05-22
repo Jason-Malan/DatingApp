@@ -10,7 +10,7 @@ namespace API.Data
     {
         public static async Task SeedUsers(DataContext context)
         {
-            if (context.PlatformUsers.Count() > 1) return;
+            //if (context.PlatformUsers.Count() > 1) return;
 
             var userData = await System.IO.File.ReadAllTextAsync("Data/UserSeedData.json");
             var users = JsonSerializer.Deserialize<List<PlatformUser>>(userData);
