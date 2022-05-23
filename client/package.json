@@ -26,6 +26,7 @@
     "font-awesome": "^4.7.0",
     "ng2-file-upload": "^1.4.0",
     "ngx-bootstrap": "^6.1.0",
+    "ngx-select-dropdown": "^2.1.0",
     "ngx-spinner": "^10.0.1",
     "ngx-toastr": "^13.0.0",
     "rxjs": "~6.6.0",

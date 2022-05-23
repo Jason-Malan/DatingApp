@@ -19,7 +19,10 @@ export class NavComponent implements OnInit {
     private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.model.username = 'lisa';
+    this.model.password = '12345';
+  }
 
   login() {
     this.accountService.login(this.model).subscribe((response) => {

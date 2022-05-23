@@ -1,0 +1,24 @@
+<div class="form-group">
+  <input
+    [ngClass]="control.errors && control.touched ? 'is-invalid' : ''"
+    type="{{ type }}"
+    class="form-control"
+    [formControl]="control"
+    placeholder="{{ label }}"
+    autocomplete="new-{{ label }}"
+  />
+  <div *ngIf="control.errors?.required" class="invalid-feedback">
+    Please enter a {{ label }}
+  </div>
+  <div *ngIf="control.errors?.minlength" class="invalid-feedback">
+    {{ label }} must be at least
+    {{ control.errors.minlength['requiredLength'] }}
+  </div>
+  <div *ngIf="control.errors?.maxlength" class="invalid-feedback">
+    {{ label }} must be at most
+    {{ control.errors.maxlength['requiredLength'] }}
+  </div>
+  <div *ngIf="control.errors?.isMatching" class="invalid-feedback">
+    Passwords do not match
+  </div>
+</div>

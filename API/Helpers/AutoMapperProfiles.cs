@@ -1,7 +1,6 @@
 ﻿using API.DTOs;
 using API.Entities;
 using API.Extensions;
-using API.Interfaces;
 using AutoMapper;
 
 namespace API.Helpers
@@ -15,6 +14,7 @@ namespace API.Helpers
             CreateMap<Photo, PhotoDto>();
             CreateMap<PhotoDto, Photo>();
             CreateMap<MemberUpdateDto, PlatformUser>();
+            CreateMap<RegisterDto, PlatformUser>();
         }
     }
 }
