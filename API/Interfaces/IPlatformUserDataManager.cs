@@ -1,5 +1,6 @@
 ﻿using API.DTOs;
 using API.Entities;
+using API.Helpers;
 
 namespace API.Interfaces
 {
@@ -7,11 +8,11 @@ namespace API.Interfaces
     {
         public void Update(PlatformUser user);
         public Task<bool> SaveAllAsync();
-        public Task<IEnumerable<PlatformUser>> GetUsersAsync();
+        public Task<PagedList<PlatformUser>> GetUsersAsync(UserParams userParams);
         public Task<PlatformUser> GetUserByIdAsync(int id);
         public Task<PlatformUser> GetUserByUsernameAsync(string username);
         public Task<FrontendUserDto> MapPlatformUserToFrontendUser(PlatformUser user);
-        public Task<List<FrontendUserDto>> MapPlatformUserListToFrontendUserList(List<PlatformUser> users);
+        public Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<PlatformUser> users, UserParams userParams);
         public Task<FrontendUserDto> GetFrontendUserByUsernameAsync(string username);
     }
 }

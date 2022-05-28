@@ -2,17 +2,15 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 #nullable disable
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class UsersController : BaseAPIController
     {
         private readonly ILogger<UsersController> logger;
@@ -44,11 +42,22 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FrontendUserDto>>> GetUsers()
+        public async Task<ActionResult<PagedList<FrontendUserDto>>> GetUsers([FromQuery]UserParams userParams)
         {
-            var users = await platformUserDataManager.GetUsersAsync();
+            var currentUser = await platformUserDataManager.GetUserByUsernameAsync(User.GetUsername());
 
-            var usersToReturn = await platformUserDataManager.MapPlatformUserListToFrontendUserList(users.ToList());
+            userParams.CurrentUsername = currentUser.UserName;
+
+            if (string.IsNullOrEmpty(userParams.Gender))
+            {
+                userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
+            }
+
+            var users = await platformUserDataManager.GetUsersAsync(userParams);
+
+            var usersToReturn = await platformUserDataManager.MapPlatformUserListToFrontendUserList(users, userParams);
+
+            Response.AddPaginationHeader(usersToReturn.CurrentPage, usersToReturn.PageSize, usersToReturn.TotalCount, usersToReturn.TotalPages);
 
             return Ok(usersToReturn);
         }

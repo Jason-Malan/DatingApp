@@ -1,8 +1,11 @@
 ﻿using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+#nullable disable
 
 namespace API.Data
 {
@@ -29,9 +32,25 @@ namespace API.Data
             return await context.PlatformUsers.SingleOrDefaultAsync(x => x.UserName == username);
         }
 
-        public async Task<IEnumerable<PlatformUser>> GetUsersAsync()
+        public async Task<PagedList<PlatformUser>> GetUsersAsync(UserParams userParams)
         {
-            return await context.PlatformUsers.ToListAsync();
+            var query = context.PlatformUsers.AsNoTracking().AsQueryable();
+
+            query = query.Where(u => u.UserName != userParams.CurrentUsername);
+            query = query.Where(u => u.Gender == userParams.Gender);
+
+            var earliestDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+            var mostRecentDob = DateTime.Today.AddYears(-userParams.MinAge);
+
+            query = userParams.OrderBy switch
+            {
+                "created" => query.OrderByDescending(u => u.Created),
+                _ => query.OrderByDescending(u => u.LastActive)
+            };
+
+            query = query.Where(u => u.DateOfBirth.Value >= earliestDob && u.DateOfBirth.Value <= mostRecentDob);
+
+            return await PagedList<PlatformUser>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<bool> SaveAllAsync()
@@ -44,28 +63,36 @@ namespace API.Data
             context.Entry(user).State = EntityState.Modified;
         }
 
-        public async Task<List<FrontendUserDto>> MapPlatformUserListToFrontendUserList(List<PlatformUser> users)
+        public async Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<PlatformUser> users, UserParams userParams)
         {
-            List<FrontendUserDto> platformUserDtos = new List<FrontendUserDto>();
-
+            // Need to add photos and main photo url to FrontendUserDto
             List<Photo> photos = await photoDataManager.GetPhotosAsync();
             List<PhotoDto> photoDtos = mapper.Map<List<PhotoDto>>(photos);
 
-            foreach (var user in users)
+            var usersToReturn = mapper.Map<List<FrontendUserDto>>(users.ToList());
+
+            foreach (var user in usersToReturn)
             {
-                var userToAdd = mapper.Map<FrontendUserDto>(user);
-                userToAdd.Photos = photoDtos.FindAll(x => x.PlatformUserId == user.Id);
-                foreach (var photo in userToAdd.Photos)
+                var photosToAdd = photoDtos.FindAll(x => x.PlatformUserId == user.Id);
+                foreach (var photo in photosToAdd)
                 {
                     if (photo.IsMain.Value)
                     {
-                        userToAdd.PhotoUrl = photo.Url;
+                        user.PhotoUrl = photo.Url;
                     }
+                    user.Photos.Add(photo);
                 }
-                platformUserDtos.Add(userToAdd);
             }
+           
+            var listToReturn = new PagedList<FrontendUserDto>(
+                usersToReturn,
+                users.CurrentPage,
+                users.TotalPages,
+                users.PageSize,
+                users.TotalCount
+                );
 
-            return platformUserDtos;
+            return listToReturn;
         }
 
         public async Task<FrontendUserDto> MapPlatformUserToFrontendUser(PlatformUser user)

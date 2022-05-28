@@ -42,7 +42,13 @@ namespace API.Controllers
             _context?.PlatformUsers?.Add(user);
             await _context.SaveChangesAsync();
 
-            return new PlatformUserDto { Username = user.UserName, Token = _tokenService.CreateToken(user), KnownAs = user.KnownAs };
+            return new PlatformUserDto 
+            { 
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
+                Gender = user.Gender 
+            };
         }
 
         [HttpPost("login")]
@@ -67,7 +73,9 @@ namespace API.Controllers
             {   
                 Username = user.UserName,
                 Token = _tokenService.CreateToken(user),
-                PhotoUrl = usersPhotos.FirstOrDefault(x => x.IsMain.Value == 1)?.Url
+                PhotoUrl = usersPhotos.FirstOrDefault(x => x.IsMain.Value == 1)?.Url,
+                KnownAs = user.KnownAs,
+                Gender = user.Gender
             };
         }
 
