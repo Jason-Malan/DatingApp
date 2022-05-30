@@ -2,7 +2,7 @@ import { Photo } from './photo';
 
 export interface FrontendUser {
   id: number;
-  userName: string;
+  username: string;
   knownAs: string;
   age: number;
   created: Date;

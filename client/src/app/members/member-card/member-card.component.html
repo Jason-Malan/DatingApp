@@ -8,14 +8,16 @@
     <ul class="list-inline member-icons animate text-center">
       <li class="list-inline-item">
         <button
-          routerLink="/members/{{ member.userName }}"
+          routerLink="/members/{{ member.username }}"
           class="btn btn-primary"
         >
           <i class="fa fa-user"></i>
         </button>
       </li>
       <li class="list-inline-item">
-        <button class="btn btn-primary"><i class="fa fa-heart"></i></button>
+        <button class="btn btn-primary" (click)="likeUser(member)">
+          <i class="fa fa-heart"></i>
+        </button>
       </li>
       <li class="list-inline-item">
         <button class="btn btn-primary"><i class="fa fa-envelope"></i></button>

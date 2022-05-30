@@ -1,4 +1,5 @@
 ﻿using API.Extensions;
+using API.Models.Entities;
 
 namespace API.DTOs
 {
@@ -7,10 +8,11 @@ namespace API.DTOs
         public FrontendUserDto()
         {
             Photos = new List<PhotoDto>();
+            Likes = new List<UserLike>();
         }
 
         public int? Id { get; set; }
-        public string? UserName { get; set; }
+        public string? Username { get; set; }
         public string? KnownAs { get; set; }
         public int? Age { get; set; }
         public DateTime? Created { get; set; }
@@ -23,5 +25,6 @@ namespace API.DTOs
         public string? Country { get; set; }
         public IList<PhotoDto>? Photos { get; set; }
         public string? PhotoUrl { get; set; }
+        public IList<UserLike>? Likes { get; set; }
     }
 }

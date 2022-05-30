@@ -19,6 +19,7 @@ namespace API.Extensions
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<LogUserActivity>();
             services.AddScoped<IPlatformUserDataManager, PlatformUserDataManager>();
+            services.AddScoped<ILikesDataManager, LikesDataManager>();
             services.AddScoped<IPhotoDataManager, PhotoDataManager>();
 
             //services.AddDbContext<DataContext>(options =>

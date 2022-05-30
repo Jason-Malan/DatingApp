@@ -13,5 +13,6 @@ namespace API.Interfaces
         public Task<PhotoDto> UpdatePhotoAsync(Photo photo);
         public Task<Photo> GetPhotoByIdAsync(int id);
         public Task<ActionResult> RemovePhoto(Photo photo);
+        public Task<Photo> GetMainPhotoByUserId(int id);
     }
 }

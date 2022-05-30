@@ -43,6 +43,7 @@ export class MemberService {
   }
 
   getMembers(userParams: UserParams) {
+    console.log(Object.values(userParams).join(' - '));
     const response = this.membersCache.get(Object.values(userParams).join('-'));
     if (response) {
       return of(response);
@@ -63,6 +64,7 @@ export class MemberService {
       params
     ).pipe(
       tap((members) => {
+        console.log(Object.values(userParams).join(' - '));
         this.membersCache.set(Object.values(userParams).join('-'), members);
       })
     );
@@ -129,5 +131,15 @@ export class MemberService {
     return this.http.delete(
       this.baseUrl + 'users/delete-photo/' + photoId.toString()
     );
+  }
+
+  likeUser(username: string) {
+    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+
+  getUserLikes(predicate: string) {
+    return this.http.get<Partial<FrontendUser[]>>(this.baseUrl + 'likes', {
+      params: { predicate: predicate },
+    });
   }
 }

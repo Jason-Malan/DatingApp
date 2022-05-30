@@ -1,4 +1,5 @@
 ﻿using API.Extensions;
+using API.Models.Entities;
 
 namespace API.Entities
 {

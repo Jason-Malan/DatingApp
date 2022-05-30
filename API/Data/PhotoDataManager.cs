@@ -50,6 +50,15 @@ namespace API.Data
             return usersPhotos;
         }
 
+        public async Task<Photo> GetMainPhotoByUserId(int id)
+        {
+            Photo photo = await context.Photos!.AsNoTracking()
+                .Where(x => x.IsMain.Value == 1)
+                .FirstOrDefaultAsync(x => x.PlatformUserId == id);
+
+            return photo;
+        }
+
         public async Task<int> CountAsync()
         {
             return await context.Photos!.CountAsync();
