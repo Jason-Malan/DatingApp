@@ -22,19 +22,19 @@ namespace API.Data
             this.mapper = mapper;
         }
 
-        public async Task<PlatformUser> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(int id)
         {
-            return await context.PlatformUsers.FindAsync(id);
+            return await context.Users.FindAsync(id);
         }
 
-        public async Task<PlatformUser> GetUserByUsernameAsync(string username)
+        public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await context.PlatformUsers.SingleOrDefaultAsync(x => x.UserName == username);
+            return await context.Users.SingleOrDefaultAsync(x => x.UserName == username);
         }
 
-        public async Task<PagedList<PlatformUser>> GetUsersAsync(UserParams userParams)
+        public async Task<PagedList<User>> GetUsersAsync(UserParams userParams)
         {
-            var query = context.PlatformUsers.AsNoTracking().AsQueryable();
+            var query = context.Users.AsNoTracking().AsQueryable();
 
             query = query.Where(u => u.UserName != userParams.CurrentUsername);
             query = query.Where(u => u.Gender == userParams.Gender);
@@ -50,7 +50,7 @@ namespace API.Data
 
             query = query.Where(u => u.DateOfBirth.Value >= earliestDob && u.DateOfBirth.Value <= mostRecentDob);
 
-            return await PagedList<PlatformUser>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
+            return await PagedList<User>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<bool> SaveAllAsync()
@@ -58,12 +58,12 @@ namespace API.Data
             return await context.SaveChangesAsync() > 0;
         }
 
-        public void Update(PlatformUser user)
+        public void Update(User user)
         {
             context.Entry(user).State = EntityState.Modified;
         }
 
-        public async Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<PlatformUser> users, UserParams userParams)
+        public async Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<User> users, UserParams userParams)
         {
             // Need to add photos and main photo url to FrontendUserDto
             List<Photo> photos = await photoDataManager.GetPhotosAsync();
@@ -95,7 +95,7 @@ namespace API.Data
             return listToReturn;
         }
 
-        public async Task<FrontendUserDto> MapPlatformUserToFrontendUser(PlatformUser user)
+        public async Task<FrontendUserDto> MapPlatformUserToFrontendUser(User user)
         {
             var photos = await photoDataManager.GetPhotosByUserId(user.Id.Value);
 
@@ -110,7 +110,7 @@ namespace API.Data
 
         public async Task<FrontendUserDto> GetFrontendUserByUsernameAsync(string username)
         {
-            var user = context.PlatformUsers.ToList().Find(x => x.UserName == username);
+            var user = context.Users.ToList().Find(x => x.UserName == username);
             var userToReturn = await MapPlatformUserToFrontendUser(user);
             return userToReturn;
         }

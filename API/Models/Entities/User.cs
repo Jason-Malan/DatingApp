@@ -1,10 +1,18 @@
 ﻿using API.Extensions;
 using API.Models.Entities;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace API.Entities
 {
-    public class PlatformUser
+    public class User
     {
+        public User()
+        {
+            MessagesSent = new HashSet<Message>();
+            MessagesReceived = new HashSet<Message>();
+        }
+
         public int? Id { get; set; }
         public string? UserName { get; set; }
         public byte[]? PasswordHash { get; set; }
@@ -19,5 +27,7 @@ namespace API.Entities
         public string? Interests { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
+        public ICollection<Message> MessagesSent { get; set; }
+        public ICollection<Message> MessagesReceived { get; set; }
     }
 }

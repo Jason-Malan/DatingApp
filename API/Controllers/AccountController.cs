@@ -30,7 +30,7 @@ namespace API.Controllers
         {
             if (await UserExists(registerDto.Username)) return BadRequest("Username is taken");
 
-            var user = mapper.Map<PlatformUser>(registerDto);
+            var user = mapper.Map<User>(registerDto);
 
             using var hmac = new HMACSHA512();
 
@@ -39,7 +39,7 @@ namespace API.Controllers
             user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
             user.PasswordSalt = hmac.Key;
 
-            _context?.PlatformUsers?.Add(user);
+            _context?.Users?.Add(user);
             await _context.SaveChangesAsync();
 
             return new PlatformUserDto 
@@ -54,7 +54,7 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<PlatformUserDto>> Login(LoginDto loginDto)
         {
-            PlatformUser user = await _context.PlatformUsers.SingleOrDefaultAsync(user => user.UserName == loginDto.Username.ToLower());
+            User user = await _context.Users.SingleOrDefaultAsync(user => user.UserName == loginDto.Username.ToLower());
 
             if (user == null) return Unauthorized("Invalid username");
 
@@ -81,7 +81,7 @@ namespace API.Controllers
 
         private async Task<bool> UserExists(string username)
         {
-            return await _context.PlatformUsers.AnyAsync(user => user.UserName == username.ToLower());
+            return await _context.Users.AnyAsync(user => user.UserName == username.ToLower());
         }
 
     }

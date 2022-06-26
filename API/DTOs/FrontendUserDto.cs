@@ -9,6 +9,8 @@ namespace API.DTOs
         {
             Photos = new List<PhotoDto>();
             Likes = new List<UserLike>();
+            MessagesSent = new HashSet<Message>();
+            MessagesReceived = new HashSet<Message>();
         }
 
         public int? Id { get; set; }
@@ -26,5 +28,7 @@ namespace API.DTOs
         public IList<PhotoDto>? Photos { get; set; }
         public string? PhotoUrl { get; set; }
         public IList<UserLike>? Likes { get; set; }
+        public ICollection<Message> MessagesSent { get; set; }
+        public ICollection<Message> MessagesReceived { get; set; }
     }
 }

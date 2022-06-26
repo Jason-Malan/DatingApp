@@ -6,13 +6,13 @@ namespace API.Interfaces
 {
     public interface IPlatformUserDataManager
     {
-        public void Update(PlatformUser user);
+        public void Update(User user);
         public Task<bool> SaveAllAsync();
-        public Task<PagedList<PlatformUser>> GetUsersAsync(UserParams userParams);
-        public Task<PlatformUser> GetUserByIdAsync(int id);
-        public Task<PlatformUser> GetUserByUsernameAsync(string username);
-        public Task<FrontendUserDto> MapPlatformUserToFrontendUser(PlatformUser user);
-        public Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<PlatformUser> users, UserParams userParams);
+        public Task<PagedList<User>> GetUsersAsync(UserParams userParams);
+        public Task<User> GetUserByIdAsync(int id);
+        public Task<User> GetUserByUsernameAsync(string username);
+        public Task<FrontendUserDto> MapPlatformUserToFrontendUser(User user);
+        public Task<PagedList<FrontendUserDto>> MapPlatformUserListToFrontendUserList(PagedList<User> users, UserParams userParams);
         public Task<FrontendUserDto> GetFrontendUserByUsernameAsync(string username);
     }
 }

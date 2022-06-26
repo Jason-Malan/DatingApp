@@ -42,7 +42,7 @@ namespace API.Data
         // Get list of users current user has liked or users that have liked current user.
         public async Task<IEnumerable<LikeDto>> GetUserLikes(string predicate, int userId)
         {
-            var foundUsers = new List<PlatformUser>();
+            var foundUsers = new List<User>();
 
             if (predicate == "liked")
             {
@@ -50,7 +50,7 @@ namespace API.Data
                 var userIdsToGet = liked.Select(like => like.LikedUserId);
                 foreach (var id in userIdsToGet)
                 {
-                    var user = await context.PlatformUsers.AsNoTracking().SingleOrDefaultAsync(user => user.Id == id);
+                    var user = await context.Users.AsNoTracking().SingleOrDefaultAsync(user => user.Id == id);
                     if (user != null)
                     {
                         foundUsers.Add(user);
@@ -64,7 +64,7 @@ namespace API.Data
                 var userIdsToGet = liked.Select(like => like.SourceUserId);
                 foreach (var id in userIdsToGet)
                 {
-                    var user = await context.PlatformUsers.AsNoTracking().SingleOrDefaultAsync(user => user.Id == id);
+                    var user = await context.Users.AsNoTracking().SingleOrDefaultAsync(user => user.Id == id);
                     if (user != null)
                     {
                         foundUsers.Add(user);

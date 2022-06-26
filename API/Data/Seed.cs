@@ -10,10 +10,10 @@ namespace API.Data
     {
         public static async Task SeedUsers(DataContext context)
         {
-            //if (context.PlatformUsers.Count() > 1) return;
+            //if (context.Users.Count() > 1) return;
 
             var userData = await System.IO.File.ReadAllTextAsync("Data/UserSeedData.json");
-            var users = JsonSerializer.Deserialize<List<PlatformUser>>(userData);
+            var users = JsonSerializer.Deserialize<List<User>>(userData);
 
             foreach (var user in users)
             {
@@ -23,7 +23,7 @@ namespace API.Data
                 user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("12345"));
                 user.PasswordSalt = hmac.Key;
 
-                context.PlatformUsers.Add(user);
+                context.Users.Add(user);
             }
 
             await context.SaveChangesAsync();
