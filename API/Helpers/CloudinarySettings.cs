@@ -1,4 +1,3 @@
-﻿#nullable disable
 namespace API.Helpers
 {
     public class CloudinarySettings

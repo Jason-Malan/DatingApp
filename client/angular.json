@@ -58,6 +58,23 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "iisexpress": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "extractCss": true,
+              "namedChunks": true,
+              "aot": false,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": false
             }
           }
         },
@@ -72,6 +89,9 @@
           "configurations": {
             "production": {
               "browserTarget": "client:build:production"
+            },
+            "iisexpress": {
+              "browserTarget": "client:build:iisexpress"
             }
           }
         },
@@ -117,6 +137,9 @@
           "configurations": {
             "production": {
               "devServerTarget": "client:serve:production"
+            },
+            "iisexpress": {
+              "devServerTarget": "client:serve:iisepress"
             }
           }
         }

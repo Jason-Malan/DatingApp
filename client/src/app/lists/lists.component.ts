@@ -1,26 +1,36 @@
 import { Component, OnInit } from '@angular/core';
-import { FrontendUser } from '../_models/frontendUser';
-import { MemberService } from '../_services/member.service';
+import { Member } from '../_models/member';
+import { Pagination } from '../_models/pagination';
+import { MembersService } from '../_services/members.service';
 
 @Component({
   selector: 'app-lists',
   templateUrl: './lists.component.html',
-  styleUrls: ['./lists.component.css'],
+  styleUrls: ['./lists.component.css']
 })
 export class ListsComponent implements OnInit {
-  members: Partial<FrontendUser[]>;
+  members: Partial<Member[]>;
   predicate = 'liked';
+  pageNumber = 1;
+  pageSize = 5;
+  pagination: Pagination;
 
-  constructor(private memberService: MemberService) {}
+  constructor(private memberService: MembersService) { }
 
   ngOnInit(): void {
     this.loadLikes();
   }
-
+  
   loadLikes() {
-    this.memberService.getUserLikes(this.predicate).subscribe((response) => {
-      this.members = response;
-      console.log('members', this.members);
-    });
+    this.memberService.getLikes(this.predicate, this.pageNumber, this.pageSize).subscribe(response => {
+      this.members = response.result;
+      this.pagination = response.pagination;
+    })
   }
+
+  pageChanged(event: any) {
+    this.pageNumber = event.page;
+    this.loadLikes();
+  }
+
 }

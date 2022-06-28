@@ -1,8 +1,12 @@
-﻿using API.Data;
+using API.Data;
 using API.Helpers;
 using API.Interfaces;
 using API.Services;
+using API.SignalR;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace API.Extensions
 {
@@ -10,23 +14,19 @@ namespace API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
-            services.AddTransient<DataContext, DataContext>();
-
+            services.AddSingleton<PresenceTracker, PresenceTracker>();
             services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
-            services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
-
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPhotoService, PhotoService>();
+            services.AddScoped<ILikesRepository, LikesRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<LogUserActivity>();
-            services.AddScoped<IPlatformUserDataManager, PlatformUserDataManager>();
-            services.AddScoped<ILikesDataManager, LikesDataManager>();
-            services.AddScoped<IPhotoDataManager, PhotoDataManager>();
-            services.AddScoped<IMessageDataManager, MessageDataManager>();
-
-            //services.AddDbContext<DataContext>(options =>
-            //{
-            //    options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
-            //}, ServiceLifetime.Transient);
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseSqlite(config.GetConnectionString("DefaultConnection"));
+            });
 
             return services;
         }

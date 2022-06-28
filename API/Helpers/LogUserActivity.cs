@@ -1,7 +1,9 @@
-﻿using API.Extensions;
+using System;
+using System.Threading.Tasks;
+using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
-#nullable disable
+using Microsoft.Extensions.DependencyInjection;
 
 namespace API.Helpers
 {
@@ -14,10 +16,10 @@ namespace API.Helpers
             if (!resultContext.HttpContext.User.Identity.IsAuthenticated) return;
 
             var userId = resultContext.HttpContext.User.GetUserId();
-            var userDataManager = resultContext.HttpContext.RequestServices.GetService<IPlatformUserDataManager>();
-            var user = await userDataManager.GetUserByIdAsync(userId);
+            var repo = resultContext.HttpContext.RequestServices.GetService<IUserRepository>();
+            var user = await repo.GetUserByIdAsync(userId);
             user.LastActive = DateTime.Now;
-            await userDataManager.SaveAllAsync();
+            await repo.SaveAllAsync();
         }
     }
 }

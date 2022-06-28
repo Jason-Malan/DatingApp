@@ -1,4 +1,6 @@
-﻿namespace API.DTOs
+using System;
+
+namespace API.DTOs
 {
     public class MessageDto
     {
@@ -10,7 +12,7 @@
         public string RecipientUsername { get; set; }
         public string RecipientPhotoUrl { get; set; }
         public string Content { get; set; }
-        public DateTime? DateReadOn { get; set; }
-        public DateTime MessageSentOn { get; set; }
+        public DateTime? DateRead { get; set; }
+        public DateTime MessageSent { get; set; }
     }
 }

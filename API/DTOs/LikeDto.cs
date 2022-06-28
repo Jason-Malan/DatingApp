@@ -1,4 +1,3 @@
-﻿#nullable disable
 namespace API.DTOs
 {
     public class LikeDto

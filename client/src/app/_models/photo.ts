@@ -1,6 +1,5 @@
 export interface Photo {
-  id: number;
-  url: string;
-  isMain: number;
-  platformUserId: number;
+    id: number;
+    url: string;
+    isMain: boolean;
 }
