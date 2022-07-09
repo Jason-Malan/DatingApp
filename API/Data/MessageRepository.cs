@@ -47,6 +47,14 @@ namespace API.Data
             return await _context.Groups.Include(x => x.Connections).FirstOrDefaultAsync(x => x.Name == groupName);
         }
 
+        public async Task<Group> GetGroupForConnection(string connectionId)
+        {
+            return await _context.Groups
+                .Include(group => group.Connections)
+                .Where(group => group.Connections.Any(x => x.ConnectionId == connectionId))
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Message> GetMessage(int id)
         {
             return await _context.Messages
@@ -98,7 +106,7 @@ namespace API.Data
             {
                 foreach (var message in unreadMessages)
                 {
-                    message.DateRead = DateTime.Now;
+                    message.DateRead = DateTime.UtcNow;
                 }
 
                 await _context.SaveChangesAsync();
