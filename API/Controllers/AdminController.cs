@@ -1,4 +1,5 @@
 ﻿using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace API.Controllers
 {
     public class AdminController : BaseApiController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<AppUser> userManager;
 
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager)
         {
+            this.unitOfWork = unitOfWork;
             this.userManager = userManager;
         }
 
@@ -60,9 +63,27 @@ namespace API.Controllers
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photos-to-moderate")]
-        public ActionResult GetPhotosForModeration()
+        public async Task<ActionResult<System.Collections.Generic.ICollection<Photo>>> GetPhotosForModeration()
         {
-            return Ok("Only Admins or Moderators can see this");
+            var result = await unitOfWork.PhotosRepository.GetPhotosForModeration();
+
+            if (result == null) return NotFound("No photos need approval");
+
+            return Ok(result);
+        }
+
+        [HttpPut("approve-all-photos")]
+        public async Task<ActionResult> ApproveAllPhotos()
+        {
+            await unitOfWork.PhotosRepository.ApproveAllPhotos();
+
+            if (unitOfWork.HasChanges()) 
+            {
+                await unitOfWork.Complete(); 
+                return Ok("Updated all photos to be approved");
+            }
+
+            return BadRequest("There were no photos to update");
         }
     }
 }
